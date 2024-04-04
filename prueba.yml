@@ -1,0 +1,18 @@
+language: node_js
+node_js: "14"
+jobs:
+  include:
+    - name: Cloud Function 1
+      script:
+        - cd cloud_function1
+        - travis
+    - name: Cloud Function 2
+      script:
+        - cd cloud_function2
+        - travis
+    - name: Cloud Function 3
+      script:
+        - cd cloud_function3
+        - travis
+notifications:
+  email: false
