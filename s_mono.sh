@@ -10,7 +10,7 @@ for function in $functions; do
     (
       cd "$function"
       # Execute the existing .travis.yml for deployment
-      travis build
+      travis --debug --skip-version-check --auto --org deploy
     ) &
   fi
 done
