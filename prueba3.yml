@@ -1,0 +1,35 @@
+language: node_js
+node_js: 12
+cache:
+  directories:
+    - node_modules
+    - "$HOME/google-cloud-sdk/"
+env:
+  global:
+    - GCP_ENV=$(...)
+    - GCP_PROJECT_ID=$(...)
+notifications:
+  email: false
+  slack:
+    rooms: bpsmart:cOFxwweHbT66YDbMwzgUaCZJ
+    template:
+      - "Build <%{build_url}|#%{build_number}> (<%{compare_url}|%{commit}: '%{commit_subject}'>) by %{author} for %{repository_name}@%{branch}, %{result} in %{duration}. <%{build_url}|Check details>."
+before_install:
+  - |
+    for package_dir in ./packages/*/; do
+      package_name=$(basename "$package_dir")
+      deploy_dir="$package_dir/deploy"
+      openssl aes-256-cbc -K $encrypted_d7c9028a9f74_key -iv $encrypted_d7c9028a9f74_iv -in "$deploy_dir/ci-sec.tar.enc" -out "$package_dir/ci-sec.tar" -d
+      tar xvf "$package_dir/ci-sec.tar" -C "$deploy_dir" &>/dev/null
+    done
+  - echo "deb https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+  - curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+  - sudo apt-get update && sudo apt-get install google-cloud-sdk -y --allow-unauthenticated
+  - gcloud auth activate-service-account --key-file ./packages/travisci-bpsmart-${GCP_ENV}-service.json
+  - gcloud config set project $(echo "${!GCP_PROJECT_ID}")
+jobs:
+  include:
+    - stage: deploy
+      name: "Deploy Cloud Functions"
+      script:
+        - ./deploy/deploy_all_functions.sh
