@@ -32,4 +32,5 @@ jobs:
     - stage: deploy
       name: "Deploy Cloud Functions"
       script:
+        - chmod +x ./deploy/deploy_all_functions.sh
         - ./deploy/deploy_all_functions.sh
