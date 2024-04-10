@@ -1,0 +1,19 @@
+cache:
+  directories:
+    - node_modules
+    - "$HOME/google-cloud-sdk/"
+
+before_install:
+  - openssl aes-256-cbc -K $encrypted_78ba314cc4e5_key -iv $encrypted_78ba314cc4e5_iv
+    -in ./deploy/ci-sec.tar.enc -out ./deploy/ci-sec.tar -d
+  - tar xvf ./deploy/ci-sec.tar -C ./deploy/ &>/dev/null
+  # Verificar si Google Cloud SDK ya está presente en el caché
+  - if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then
+      echo "deb https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list;
+      curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -;
+      sudo apt-get update && sudo apt-get install google-cloud-sdk -y --allow-unauthenticated;
+    else
+      echo "Google Cloud SDK already installed.";
+    fi
+  - gcloud auth activate-service-account --key-file ./deploy/travisci-bpsmart-${GCP_ENV}-service.json
+  - gcloud config set project $(echo "${!GCP_PROJECT_ID}")
