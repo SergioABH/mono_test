@@ -1,0 +1,28 @@
+Created endpoint to retrieve user's phone number
+
+Pull Request Description:
+A new GET endpoint /api/user/phone has been created to allow users to retrieve their associated phone number.
+The following rules and considerations were established:
+
+Implemented logic to return the user's associated phone number.
+Only users with an active session in the system can request their phone number.
+Handled cases where a user does not have an active session, returning a 403 status code.
+Managed the situation where the user's phone number does not exist, returning a 404 error with the appropriate message.
+Obtained the user's session ID from the system's cookies and performed the information query based on that key, which is stored in Redis.
+
+
+
+
+Title of the Pull Request:
+Created endpoint to request calls to Serlefin with user authentication and error handling
+
+Pull Request Description:
+A new POST endpoint /api/user/call has been created to allow the reception of a user's phone number as parameters. Additionally, the Serlefin service has been integrated based on the provided documentation.
+
+The following rules and considerations were established:
+
+Created an endpoint to receive the user's phone number.
+Integrated the Serlefin provider.
+Handled cases where a user does not have an active session, returning a 403 status code.
+If the endpoint fails while processing a request to make a call via Serlefin, the request is retried up to 3 times.
+If the API fails after 3 attempts, a 403 status code is returned.
